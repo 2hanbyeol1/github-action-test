@@ -15,20 +15,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # Github Repository Secrets를 통해 환경 변수 파일을 생성합니다.
       - name: Generate Environment Variables File
         run: |
-          echo "VITE_ENV_TEST=$VITE_ENV_TEST" >> .env.local
-          echo "VITE_ENV_TEST is $VITE_ENV_TEST"
+          echo "VITE_TEST=$VITE_TEST" >> .env.local
+          echo "VITE_TEST is $VITE_TEST"
         env:
           VITE_ENV_TEST: ${{ secrets.VITE_ENV_TEST }}
+      - name: Install Dependencies
+        run: yarn
       - name: Check Lint
         run: yarn lint
       - name: Delete ./out & Build
         run: |
           rm -rf ./out
           yarn build
-      - name: Connect with remote server
+      - name: Connect with Remote Server
         run: echo "SSH - Connect with remote server"
-      - name: Copy files to remote server
+      - name: Copy files to Remote Server
         run: echo "SCP - Copy files to remote server"
