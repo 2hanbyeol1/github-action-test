@@ -54,8 +54,8 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: "good"
-          SLACK_MESSAGE: "Build succeeded ✅"
-          SLACK_TITLE: "Build Success"
+          SLACK_TITLE: " ✅ [ FE ] 배포 성공"
+          SLACK_MESSAGE: "새로운 버전이 배포되었습니다"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
   notify-slack-failure:
@@ -67,6 +67,6 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: "danger"
-          SLACK_MESSAGE: "Build failed ❌"
-          SLACK_TITLE: "Build Failure"
+          SLACK_TITLE: "❌ [ FE ] 배포 실패"
+          SLACK_MESSAGE: "배포에 실패하였습니다"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
