@@ -39,15 +39,15 @@ jobs:
       - name: Build
         run: yarn build
 
-      # ubuntu 서버에 접속하여 빌드 파일을 전송하고 배포된 파일을 교체
-      - name: Execute Remote SSH & Deploy
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.REMOTE_SSH_HOST }}
-          username: ${{ secrets.REMOTE_SSH_USERNAME }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          source: ./out
-          target: /home/${{ secrets.REMOTE_SSH_USERNAME }}/test
+      # # ubuntu 서버에 접속하여 빌드 파일을 전송하고 배포된 파일을 교체
+      # - name: Execute Remote SSH & Deploy
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.REMOTE_SSH_HOST }}
+      #     username: ${{ secrets.REMOTE_SSH_USERNAME }}
+      #     key: ${{ secrets.REMOTE_SSH_KEY }}
+      #     source: ./out
+      #     target: /home/${{ secrets.REMOTE_SSH_USERNAME }}/test
 
   notify-slack:
     runs-on: ubuntu-latest
