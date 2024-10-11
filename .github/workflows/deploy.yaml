@@ -36,13 +36,11 @@ jobs:
           echo "VITE_TEST=$VITE_TEST" >> .env.local
           echo "VITE_TEST is $VITE_TEST"
         env:
-          VITE_ENV_TEST: ${{ secrets.VITE_TEST }}
+          VITE_TEST: ${{ secrets.VITE_TEST }}
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-      - name: Delete ./out & Build
-        run: |
-          rm -rf ./out
-          yarn build
+      - name: Build
+        run: yarn build
 
       # ubuntu 서버에 접속하여 빌드 파일을 전송하고 배포된 파일을 교체
       - name: Execute Remote SSH & Deploy
