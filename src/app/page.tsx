@@ -3,6 +3,7 @@ export default function Home() {
     <div className="w-screen h-screen flex justify-center items-center flex-col">
       <div>Hello Github Action!</div>
       <div>ENV === [{process.env.VITE_TEST}]</div>
+      <div>BUILD FAIL TEST!!!</div
     </div>
   );
 }
