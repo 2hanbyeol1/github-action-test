@@ -57,7 +57,8 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: ${{ job.status }}
-          SLACK_MESSAGE: "notify with no Icon"
+          SLACK_ICON: https://ca.slack-edge.com/T07QZJPNXRD-U07RE5DGSR0-38d3c1f0c1ee-512
+          SLACK_MESSAGE: "Post Content :rocket:"
           SLACK_TITLE: Post Title
-          SLACK_USERNAME: githubBot
+          SLACK_USERNAME: UuUUUUUUSERNAME
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
