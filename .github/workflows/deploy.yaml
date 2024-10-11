@@ -1,12 +1,8 @@
-name: Github-Action-Test
+name: Github-Action-Test # 변경 필요
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  # workflow_dispatch:
 
 jobs:
   lint:
@@ -28,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate Environment Variables File
+      - name: Generate Environment Variables File # 내용 변경 필요
         run: |
           echo "VITE_TEST=$VITE_TEST" >> .env.local
           echo "VITE_TEST is $VITE_TEST"
@@ -47,17 +43,30 @@ jobs:
           username: ${{ secrets.REMOTE_SSH_USERNAME }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           source: ./out
-          target: /home/${{ secrets.REMOTE_SSH_USERNAME }}/test
+          target: /home/${{ secrets.REMOTE_SSH_USERNAME }}/test #target 변경 필요
 
-  notify-slack:
+  notify-slack-success:
     runs-on: ubuntu-latest
+    needs: build
+    if: success()
     steps:
-      - uses: actions/checkout@v4
-      - name: Notify to Slack
+      - name: Notify Slack on Success
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_MESSAGE: "notify with no Icon"
-          SLACK_TITLE: Post Title
-          SLACK_USERNAME: githubBot
+          SLACK_COLOR: "good"
+          SLACK_MESSAGE: "Build succeeded ✅"
+          SLACK_TITLE: "Build Success"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  notify-slack-failure:
+    runs-on: ubuntu-latest
+    needs: build
+    if: failure()
+    steps:
+      - name: Notify Slack on Failure
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: "Build failed ❌"
+          SLACK_TITLE: "Build Failure"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
