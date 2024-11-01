@@ -1,8 +1,9 @@
-name: Github-Action-Test # 변경 필요
+name: FE-Deploy
 
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -13,60 +14,57 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 20.x
-          # Yarn 캐시 활성화
           cache: "yarn"
-      - name: Install dependencies
+      - name: Install Dependencies
         run: yarn install --frozen-lockfile
       - name: Run lint
         run: yarn lint
 
   build:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate Environment Variables File # 내용 변경 필요
+      - name: Generate Environment Variables File
+        # ! 환경변수 변경 필요
         run: |
-          echo "VITE_TEST=$VITE_TEST" >> .env.local
-          echo "VITE_TEST is $VITE_TEST"
-        env:
-          VITE_TEST: ${{ secrets.VITE_TEST }}
+          echo "VITE_TEST=${{ secrets.VITE_TEST }}" >> .env.local
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-
-      # ubuntu 서버에 접속하여 빌드 파일을 전송하고 배포된 파일을 교체
-      - name: Execute Remote SSH & Deploy
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.REMOTE_SSH_HOST }}
-          username: ${{ secrets.REMOTE_SSH_USERNAME }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
-          source: ./out
-          target: /home/${{ secrets.REMOTE_SSH_USERNAME }}/test #target 변경 필요
-
-  notify-slack-success:
-    runs-on: ubuntu-latest
-    needs: [build, lint]
-    if: success()
-    steps:
-      - name: Notify Slack on Success
-        uses: rtCamp/action-slack-notify@v2
+      - name: Upload build files to S3
         env:
-          SLACK_COLOR: "good"
-          SLACK_TITLE: " ✅ [ FE ] 배포 성공"
-          SLACK_MESSAGE: "새로운 버전이 배포되었습니다"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+            --recursive \
+            --region ap-northeast-2 \
+            out s3://${{ secrets.AWS_S3_BUCKET_NAME }}
 
-  notify-slack-failure:
-    runs-on: ubuntu-latest
-    needs: [build, lint]
-    if: failure()
-    steps:
-      - name: Notify Slack on Failure
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_COLOR: "danger"
-          SLACK_TITLE: "❌ [ FE ] 배포 실패"
-          SLACK_MESSAGE: "배포에 실패하였습니다"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  # notify-slack-success:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, lint]
+  #   if: success()
+  #   steps:
+  #     - name: Notify Slack on Success
+  #       uses: rtCamp/action-slack-notify@v2
+  #       env:
+  #         SLACK_COLOR: "good"
+  #         SLACK_TITLE: " ✅ [ FE ] 배포 성공"
+  #         SLACK_MESSAGE: "새로운 버전이 배포되었습니다"
+  #         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  # notify-slack-failure:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, lint]
+  #   if: failure()
+  #   steps:
+  #     - name: Notify Slack on Failure
+  #       uses: rtCamp/action-slack-notify@v2
+  #       env:
+  #         SLACK_COLOR: "danger"
+  #         SLACK_TITLE: "❌ [ FE ] 배포 실패"
+  #         SLACK_MESSAGE: "배포에 실패하였습니다"
+  #         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
